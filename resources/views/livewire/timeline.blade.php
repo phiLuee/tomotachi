@@ -10,6 +10,9 @@ use Livewire\Attributes\Computed;
 // Definiere die Volt-Komponente
 new class extends Component
 {
+
+    protected $listeners = ['post-created' => 'refreshPosts'];
+
     /**
      * Berechne die Posts für die Timeline.
      * #[Computed] sorgt dafür, dass das Ergebnis für die Dauer
@@ -51,15 +54,32 @@ new class extends Component
         // Oft ist es aber sauberer, die Daten über #[Computed] zu laden.
     }
 
+
+    public function refreshPosts(): void
+    {
+        // Da 'posts' eine #[Computed] Property ist, müssen wir sie nicht
+        // manuell neu laden. Livewire erkennt die Änderung und ruft
+        // die computed Property beim nächsten Rendern automatisch neu auf.
+        // Ein einfacher Trigger genügt oft, oder leere die Cache-Variable, falls manuell gecached.
+
+        // Alternativ, wenn posts() KEINE computed property wäre:
+        // $this->posts = $this->loadPosts(); // Beispiel: Lade Methode aufrufen
+
+        // Manchmal reicht es auch, die Komponente einfach neu zu rendern:
+        // (Keine Aktion hier nötig, da #[On] das oft schon triggert)
+
+        // Optional: Nach oben scrollen, wenn ein neuer Post erstellt wurde
+        // $this->js('window.scrollTo({ top: 0, behavior: "smooth" })');
+    }
+
 }; ?>
 
-{{-- Das ist der Blade-Teil der Volt-Komponente --}}
 <div class="space-y-6"> {{-- Fügt vertikalen Abstand zwischen den Posts hinzu --}}
 
     {{-- Prüfe, ob Posts vorhanden sind, und loope durch sie hindurch --}}
     @forelse ($this->posts() as $post)
         {{-- Container für jeden einzelnen Post --}}
-        <div wire:key="post-{{ $post->id }}" class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div id="post-{{ $post->id }}" wire:key="post-{{ $post->id }}" class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             <div class="flex items-center mb-4">
                 {{-- Optional: Avatar --}}
                 {{-- <img src="{{ $post->user->avatar_url ?? '/default-avatar.png' }}" alt="{{ $post->user->name }}" class="h-10 w-10 rounded-full mr-3"> --}}

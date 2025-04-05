@@ -20,8 +20,6 @@ class PostSeeder extends Seeder
             return; // Beende den Seeder, wenn keine User da sind
         }
 
-        // Erstelle z.B. 50 Posts über die PostFactory.
-        // Die Factory weist jedem Post zufällig einen existierenden User zu.
         Post::factory()->count(50)->create();
 
         $this->command->info('PostSeeder executed: Created 50 random posts.');
