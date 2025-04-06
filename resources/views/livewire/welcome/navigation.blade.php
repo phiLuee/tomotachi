@@ -1,26 +1,66 @@
+<?php
+
+namespace App\Livewire\Welcome;
+
+use Livewire\Volt\Component;
+use Livewire\Attributes\On;
+
+new class extends Component
+{
+    /**
+     * @var string[]
+     */
+    protected $listeners = [
+        'auth-successful' => 'handleAuthSuccess',
+        'openLoginModal' => 'switchToLoginModal',
+        'openRegisterModal' => 'switchToRegisterModal',
+    ];
+
+    
+    public function openLoginModal(): void
+    {
+        // Sende generisches Event mit Komponenten-Alias
+        $this->dispatch('open-modal', component: 'auth.login-modal');
+    }
+
+    public function openRegisterModal(): void
+    {
+         // Sende generisches Event mit Komponenten-Alias
+        $this->dispatch('open-modal', component: 'auth.register-modal');
+    }
+
+    #[On('auth-successful')]
+    public function handleAuthSuccess(): void
+    {
+        // Der ModalManager schließt sich selbst via Listener.
+        // Diese Komponente leitet weiter.
+        $this->redirect(route('dashboard', absolute: false), navigate: true);
+    }
+
+
+     #[On('openLoginModal')] // Kommt vom Register-Link
+     public function switchToLoginModal(): void
+     {
+         $this->openLoginModal(); // Öffnet das Login-Modal via Event
+     }
+
+     #[On('openRegisterModal')] // Kommt vom Login-Link
+     public function switchToRegisterModal(): void
+     {
+         $this->openRegisterModal(); // Öffnet das Register-Modal via Event
+     }
+
+
+}
+?>
+
 <nav class="-mx-3 flex flex-1 justify-end">
     @auth
-        <a
-            href="{{ url('/dashboard') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
-            Dashboard
-        </a>
+        <a href="{{ route('dashboard', absolute: false) }}" wire:navigate class="...">Dashboard</a>
     @else
-        <a
-            href="{{ route('login') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
-            Log in
-        </a>
-
+        <button type="button" wire:click="openLoginModal" class="p-6">Log in</button>
         @if (Route::has('register'))
-            <a
-                href="{{ route('register') }}"
-                class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-            >
-                Register
-            </a>
+            <button type="button" wire:click="openRegisterModal" class="p-6">Register</button>
         @endif
     @endauth
 </nav>
