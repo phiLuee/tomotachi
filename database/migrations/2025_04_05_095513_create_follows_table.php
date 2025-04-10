@@ -12,21 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('follows', function (Blueprint $table) {
-            // Foreign key für den User, der folgt (follower)
+            $table->id();
+
             $table->foreignId('follower_id')
-                  ->constrained('users') // Verweist auf die 'id' in der 'users'-Tabelle
-                  ->onDelete('cascade'); // Wenn der User gelöscht wird, wird auch der Follow-Eintrag gelöscht
+                  ->constrained('users')
+                  ->onDelete('cascade'); 
 
-            // Foreign key für den User, dem gefolgt wird (following)
             $table->foreignId('following_id')
-                  ->constrained('users') // Verweist auf die 'id' in der 'users'-Tabelle
-                  ->onDelete('cascade'); // Wenn der User gelöscht wird, wird auch der Follow-Eintrag gelöscht
+                  ->constrained('users') 
+                  ->onDelete('cascade');
 
-            $table->timestamps(); // Fügt created_at und updated_at hinzu
+            $table->timestamps(); 
 
             // Zusammengesetzter Primärschlüssel, um Duplikate zu verhindern
             // Ein User kann einem anderen User nur einmal folgen.
-            $table->primary(['follower_id', 'following_id']);
+            $table->unique(['follower_id', 'following_id']);
+
+            $table->index('follower_id');
+            $table->index('following_id');
         });
     }
 

@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -60,8 +62,9 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Ein User hat viele Posts
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function posts()
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
@@ -81,6 +84,7 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Die User, die diesem User folgen (Followers).
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function followers(): BelongsToMany
     {
@@ -90,5 +94,26 @@ class User extends Authenticatable implements FilamentUser
             'following_id',     // Foreign Key des *anderen* Models in der Pivot-Tabelle
             'follower_id'       // Foreign Key des *aktuellen* Models in der Pivot-Tabelle
         )->withTimestamps();     // Optional: Timestamps der Pivot-Tabelle laden
+    }
+
+    /**
+     * Get the chat threads where the user is a participant
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function chatThreads(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ChatThread::class,
+            'chat_thread_user'
+        )->withTimestamps()->withPivot('role');
+    }
+
+    /**
+     * Get all chat messages sent by the user
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function chatMessages(): HasMany
+    {
+        return $this->hasMany(ChatMessage::class);
     }
 }

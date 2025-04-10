@@ -1,8 +1,8 @@
 <?php
+declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Post;
 use App\Models\User;
@@ -14,13 +14,13 @@ class PostSeeder extends Seeder
      */
     public function run(): void
     {
-        // Überprüfen, ob überhaupt User existieren
         if (User::count() == 0) {
             $this->command->warn('No users found. Skipping PostSeeder. Please run UserSeeder first.');
-            return; // Beende den Seeder, wenn keine User da sind
+            return;
         }
 
-        Post::factory()->count(50)->create();
+        Post::factory()->count(50)->mainPosts()->create();
+        Post::factory()->count(50)->comments()->create();
 
         $this->command->info('PostSeeder executed: Created 50 random posts.');
     }

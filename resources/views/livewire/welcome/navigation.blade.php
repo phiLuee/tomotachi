@@ -1,66 +1,53 @@
 <?php
 
-namespace App\Livewire\Welcome;
+// Stellt sicher, dass dies die Datei für die 'welcome.navigation' Komponente ist
+// z.B. resources/views/livewire/welcome/navigation.blade.php
 
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Log; // Logging beibehalten
 
 new class extends Component
 {
     /**
-     * @var string[]
+     * Öffnet das Login-Modal durch Dispatch des generischen Events.
      */
-    protected $listeners = [
-        'auth-successful' => 'handleAuthSuccess',
-        'openLoginModal' => 'switchToLoginModal',
-        'openRegisterModal' => 'switchToRegisterModal',
-    ];
-
-    
     public function openLoginModal(): void
     {
-        // Sende generisches Event mit Komponenten-Alias
+        Log::info('welcome.navigation: Dispatching open-modal for login using named param.'); // Log dispatch
+        // Sende generisches Event mit Komponenten-Alias an den ModalManager
+        // KORREKTUR: Benannte Argumente wieder verwenden
         $this->dispatch('open-modal', component: 'auth.login-modal');
     }
 
+    /**
+     * Öffnet das Registrierungs-Modal durch Dispatch des generischen Events.
+     */
     public function openRegisterModal(): void
     {
-         // Sende generisches Event mit Komponenten-Alias
+        Log::info('welcome.navigation: Dispatching open-modal for register using named param.'); // Log dispatch
+         // Sende generisches Event mit Komponenten-Alias an den ModalManager
+         // KORREKTUR: Benannte Argumente wieder verwenden
         $this->dispatch('open-modal', component: 'auth.register-modal');
     }
 
-    #[On('auth-successful')]
-    public function handleAuthSuccess(): void
-    {
-        // Der ModalManager schließt sich selbst via Listener.
-        // Diese Komponente leitet weiter.
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
-    }
+}; ?>
 
-
-     #[On('openLoginModal')] // Kommt vom Register-Link
-     public function switchToLoginModal(): void
-     {
-         $this->openLoginModal(); // Öffnet das Login-Modal via Event
-     }
-
-     #[On('openRegisterModal')] // Kommt vom Login-Link
-     public function switchToRegisterModal(): void
-     {
-         $this->openRegisterModal(); // Öffnet das Register-Modal via Event
-     }
-
-
-}
-?>
-
+{{-- Der HTML/Blade-Teil der Komponente (unverändert) --}}
 <nav class="-mx-3 flex flex-1 justify-end">
     @auth
-        <a href="{{ route('dashboard', absolute: false) }}" wire:navigate class="...">Dashboard</a>
+        <a href="{{ route('dashboard', absolute: false) }}" wire:navigate class="...">Dashboard</a> {{-- Klassen anpassen --}}
     @else
-        <button type="button" wire:click="openLoginModal" class="p-6">Log in</button>
+        {{-- Button ruft openLoginModal in DIESER Komponente auf --}}
+        <button type="button" wire:click="openLoginModal" class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">
+            Log in
+        </button>
+
         @if (Route::has('register'))
-            <button type="button" wire:click="openRegisterModal" class="p-6">Register</button>
+            {{-- Button ruft openRegisterModal in DIESER Komponente auf --}}
+            <button type="button" wire:click="openRegisterModal" class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white ml-4"> {{-- ml-4 für Abstand hinzugefügt --}}
+                Register
+            </button>
         @endif
     @endauth
 </nav>

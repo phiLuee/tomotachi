@@ -31,7 +31,17 @@ new class extends Component
         Session::regenerate();
 
         // !! ERSETZE Redirect durch Event !!
-        $this->dispatch('auth-successful');
+        $this->handleAuthSuccess();
+    }
+
+    /**
+     * Handle the successful authentication.
+     * Redirects to the dashboard.
+     */
+    public function handleAuthSuccess(): void
+    {
+        Log::info('welcome.navigation: Handling auth-successful, redirecting.'); // Log action
+        $this->redirect(route('dashboard', absolute: false), navigate: true);
     }
 }; ?>
 

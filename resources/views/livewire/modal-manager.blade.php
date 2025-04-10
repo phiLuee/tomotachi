@@ -2,90 +2,104 @@
 
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
-// Definiert die Volt-Komponente
 new class extends Component
 {
-    // Zustand: Ist irgendein Modal sichtbar?
+    public const openModalEvent = 'open-modal';
+    public const closeModalEvent = 'close-modal';
+
     public bool $showModal = false;
-    
-    // Welche Komponente soll im Modal angezeigt werden (z.B. 'auth.login-modal')?
     public ?string $activeModalComponent = null;
-
-    // Daten, die an die Komponente im Modal übergeben werden sollen
     public array $modalComponentData = [];
+    public int $modalInstanceCounter = 0;
 
-    /**
-     * Hört auf das generische 'open-modal' Event.
-     * Setzt die aktive Komponente, übergibt Daten und zeigt das Modal an.
-     */
     #[On('open-modal')]
-    public function openModal(string $component, array $data = []): void
+    public function openModal(string $component = '', array $data = []): void
     {
+        Log::info('ModalManager: openModal received.', ['component' => $component]);
+
+        // Zustand zurücksetzen
+        $this->resetState();
+        Log::info('ModalManager: State after resetState in openModal.', ['active' => $this->activeModalComponent]);
+
+        // Zähler erhöhen, um einen neuen Key zu erzwingen
+        $this->modalInstanceCounter++;
+        Log::info('ModalManager: Incremented counter.', ['counter' => $this->modalInstanceCounter]);
+
+        // Aktive Komponente und Daten setzen
         $this->activeModalComponent = $component;
         $this->modalComponentData = $data;
-        $this->showModal = true; // Zeigt das Modal (via @entangle)
+        Log::info('ModalManager: State after setting component.', ['active' => $this->activeModalComponent]);
+
+        // Modal anzeigen -> Löst Update aus
+        $this->showModal = true;
+        Log::info('ModalManager: Set showModal=true. Final state before update:', [
+            'show' => $this->showModal,
+            'active' => $this->activeModalComponent,
+            'counter' => $this->modalInstanceCounter
+        ]);
     }
 
-    /**
-     * Schließt das Modal.
-     * Kann durch Alpine (Escape, Click away via @entangle) oder durch Events getriggert werden.
-     * Hier definieren wir es hauptsächlich, um es bei Bedarf explizit aufrufen zu können
-     * oder auf spezifische Schließ-Events zu hören.
-     */
-    #[On('close-modal')] // Generischer Listener zum Schließen
-    public function closeModal(): void
+    #[On('close-modal')]
+    public function requestClose(): void
     {
+        Log::info('ModalManager: requestClose called.');
         $this->showModal = false;
-        // Optional: Verzögert zurücksetzen, damit der Inhalt nicht springt während der Transition
-        // $this->js('setTimeout(() => { $wire.resetState() }, 300)'); // 300ms = Alpine transition duration
-        // Wenn nicht verzögert:
-        $this->resetState();
     }
 
     /**
-      * Setzt den Komponenten-Zustand zurück (wird nach dem Schließen aufgerufen).
-      */
-     public function resetState(): void
-     {
-         $this->activeModalComponent = null;
-         $this->modalComponentData = [];
-     }
-
-
-    /**
-     * Hört auf das 'auth-successful' Event von Login/Register Modals.
-     * Schließt das Modal. Die Weiterleitung erfolgt in der Komponente, die das Modal geöffnet hat.
+     * Setzt den Komponenten-Zustand zurück, wenn das Modal geschlossen ist.
      */
-    #[On('auth-successful')]
-    public function closeOnAuthSuccess(): void
+    public function resetState(): void
     {
-        $this->closeModal();
+        // Wenn das Modal noch geöffnet ist, den Reset abbrechen
+        if ($this->showModal) {
+            Log::info('ModalManager: resetState aborted, modal is open.');
+            return;
+        }
+        $this->activeModalComponent = null;
+        $this->modalComponentData = [];
+        Log::info('ModalManager: state reset.');
     }
 
     /**
-     * Wird aufgerufen, wenn $showModal von Alpine (via @entangle) geändert wird.
-     * Wenn es auf false gesetzt wird, resetten wir den State.
+     * Lifecycle Hook für $showModal Update von Alpine.
      */
-     public function updatedShowModal(bool $value): void
-     {
-         if (!$value) {
-             // Verzögert zurücksetzen, damit der Inhalt nicht springt während der Transition
-             $this->js('setTimeout(() => { $wire.resetState() }, 300)'); // 300ms = Alpine transition duration
-         }
-     }
+    public function updatedShowModal(bool $value): void
+    {
+        Log::info('ModalManager: updatedShowModal hook fired.', ['new_value' => $value]);
+        if (!$value) {
+            // Reset verzögert ausführen, nur wenn das Modal geschlossen bleibt
+            Log::info('ModalManager: Scheduling delayed resetState via JS.');
+            $this->js('setTimeout(() => { $wire.resetState() }, 300)');
+        } else {
+            Log::info('ModalManager: updatedShowModal hook - modal opened.');
+        }
+    }
 
-}; ?>
+    /**
+     * Berechnet Props für die dynamische Komponente.
+     */
+    public function getComponentPropsProperty(): array
+    {
+        $props = [];
+        foreach ($this->modalComponentData as $key => $value) {
+            $props[Str::camel($key)] = $value;
+        }
+        return $props;
+    }
+};
+?>
 
-<div> {{-- Root-Element für die Livewire-Komponente --}}
 
-    {{-- ############################################# --}}
-    {{-- ## MODAL-CONTAINER (GENERISCH)           ## --}}
-    {{-- ############################################# --}}
+{{-- Blade / HTML Teil --}}
+<div>
     <div
-        x-data="{ show: @entangle('showModal') }" {{-- Alpine 'show' an Livewire '$showModal' binden --}}
+        x-data="{ show: @entangle('showModal') }"
         x-show="show"
-        x-on:keydown.escape.window="show = false" {{-- Schließt bei ESC (setzt Livewire state via entangle) --}}
+        x-on:keydown.escape.window="show = false"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -97,17 +111,17 @@ new class extends Component
     >
         <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             {{-- Overlay --}}
-            <div x-show="show" x-on:click="show = false" {{-- Schließt bei Klick daneben --}}
+            <div x-show="show" x-on:click="show = false"
                  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
+                 class="fixed inset-0 bg-gray-500/75 transition-opacity dark:bg-gray-900/80" aria-hidden="true"></div>
 
             {{-- Zentrierungstrick --}}
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             {{-- Modal Panel --}}
             <div x-show="show"
-                 x-trap.inert.noscroll="show" {{-- Fokus-Trap & Scroll-Sperre --}}
+                 x-trap.inert.noscroll="show"
                  x-transition:enter="ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -116,29 +130,26 @@ new class extends Component
                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                  class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
             >
-                {{-- Dynamischer Inhalt basierend auf $activeModalComponent --}}
+                {{-- Dynamischer Inhalt --}}
                 @if($activeModalComponent)
                     <livewire:dynamic-component
                         :is="$activeModalComponent"
-                        {{-- Wichtiger Key, damit Livewire die Komponente korrekt identifiziert --}}
-                        wire:key="'modal-content-'. $activeModalComponent"
-                     />
+                        wire:key="'modal-content-'. $activeModalComponent . '-' . $modalInstanceCounter"
+                    />
+                @else
+                     <div class="text-center p-4 text-gray-500 dark:text-gray-400">
+                        {{-- Fallback-Inhalt --}}
+                     </div>
                 @endif
 
-                
-
-                {{-- Optional: Schließen-Button --}}
-                {{-- @click="show = false" schließt es direkt via @entangle --}}
-
-                {{-- Optionaler expliziter Schließen-Button im Panel --}}
-                {{-- Alpine @click="show = false" schließt es direkt via @entangle --}}
-                <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-500">
-                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                {{-- Schließen-Button --}}
+                <button type="button" @click="show = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300">
+                     <span class="sr-only">Schließen</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
         </div>
     </div>
-    {{-- ############################################# --}}
-    {{-- ## ENDE DES MODAL-CONTAINERS             ## --}}
-    {{-- ############################################# --}}
 </div>
