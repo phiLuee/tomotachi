@@ -19,8 +19,8 @@ class PostSeeder extends Seeder
             return;
         }
 
-        Post::factory()->count(50)->mainPosts()->create();
-        Post::factory()->count(50)->comments()->create();
+        Post::factory()->count(50)->mainPost()->create();
+        Post::factory()->count(50)->comment()->create();
 
         $this->command->info('PostSeeder executed: Created 50 random posts.');
     }

@@ -14,13 +14,20 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'password' => Hash::make('admin@example.com'), 
+            'password' => Hash::make('admin@example.com'),
         ]);
 
-        User::factory()->count(10)->create();
+        $user->assignRole('admin');
+
+        User::factory()
+            ->count(10)
+            ->create()
+            ->each(function ($user) {
+            $user->assignRole('user');
+        });;
 
         $this->command->info('UserSeeder executed: Created test user and 10 random users.');
     }
