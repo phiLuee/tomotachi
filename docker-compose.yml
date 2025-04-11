@@ -1,10 +1,12 @@
-version: '3.8'
 services:
   workspace:
     build: .
     volumes:
-      - .:/workspace 
-    working_dir: /workspace
+      - .:/home/user/workspace 
+    working_dir: /home/user/workspace
     ports:
       - "8000:8000" 
+    environment:
+      UID: 1000
+      GID: 1000
     tty: true 
