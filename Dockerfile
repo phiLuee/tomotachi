@@ -16,7 +16,4 @@ WORKDIR /home/user/workspace
 
 USER user
 
-COPY --chown=user:user package.json package-lock.json ./
-RUN npm install
-
 CMD ["sh"]
