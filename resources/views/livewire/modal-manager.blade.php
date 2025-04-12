@@ -13,7 +13,6 @@ new class extends Component
     public bool $showModal = false;
     public ?string $activeModalComponent = null;
     public array $modalComponentData = [];
-    public int $modalInstanceCounter = 0;
 
     #[On('open-modal')]
     public function openModal(string $component = '', array $data = []): void
@@ -23,10 +22,6 @@ new class extends Component
         // Zustand zurücksetzen
         $this->resetState();
         Log::info('ModalManager: State after resetState in openModal.', ['active' => $this->activeModalComponent]);
-
-        // Zähler erhöhen, um einen neuen Key zu erzwingen
-        $this->modalInstanceCounter++;
-        Log::info('ModalManager: Incremented counter.', ['counter' => $this->modalInstanceCounter]);
 
         // Aktive Komponente und Daten setzen
         $this->activeModalComponent = $component;
@@ -38,7 +33,6 @@ new class extends Component
         Log::info('ModalManager: Set showModal=true. Final state before update:', [
             'show' => $this->showModal,
             'active' => $this->activeModalComponent,
-            'counter' => $this->modalInstanceCounter
         ]);
     }
 
@@ -97,7 +91,7 @@ new class extends Component
 {{-- Blade / HTML Teil --}}
 <div>
     <div
-        x-data="{ show: @entangle('showModal') }"
+        x-data="{ show: @entangle('showModal').live }"
         x-show="show"
         x-on:keydown.escape.window="show = false"
         x-transition:enter="ease-out duration-300"
@@ -132,13 +126,13 @@ new class extends Component
             >
                 {{-- Dynamischer Inhalt --}}
                 @if($activeModalComponent)
-                    <livewire:dynamic-component
-                        :is="$activeModalComponent"
-                        wire:key="'modal-content-'. $activeModalComponent . '-' . $modalInstanceCounter"
+                    <livewire:is
+                        :component="$activeModalComponent"
+                        wire:key="'modal-content-'. $activeModalComponent"
                     />
                 @else
                      <div class="text-center p-4 text-gray-500 dark:text-gray-400">
-                        {{-- Fallback-Inhalt --}}
+                        <p>NO COMPONENT</p>
                      </div>
                 @endif
 
