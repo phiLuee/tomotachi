@@ -76,7 +76,7 @@ new class extends Component
 {{-- Blade / HTML Teil --}}
 <div>
     <div
-        x-data="{ show: @entangle('showModal').live }"
+        x-data="{ show: @entangle('showModal') }"
         x-show="show"
         x-on:keydown.escape.window="show = false"
         x-transition:enter="ease-out duration-300"
