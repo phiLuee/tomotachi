@@ -19,9 +19,10 @@ new class extends Component
     {
         Log::info('ModalManager: openModal received.', ['component' => $component]);
 
-        // Zustand zurücksetzen
-        $this->resetState();
-        Log::info('ModalManager: State after resetState in openModal.', ['active' => $this->activeModalComponent]);
+        
+        if($this->activeModalComponent !== $component) {
+            $this->resetState();
+        }
 
         // Aktive Komponente und Daten setzen
         $this->activeModalComponent = $component;
@@ -39,7 +40,6 @@ new class extends Component
     #[On('close-modal')]
     public function requestClose(): void
     {
-        Log::info('ModalManager: requestClose called.');
         $this->showModal = false;
     }
 
@@ -56,21 +56,6 @@ new class extends Component
         $this->activeModalComponent = null;
         $this->modalComponentData = [];
         Log::info('ModalManager: state reset.');
-    }
-
-    /**
-     * Lifecycle Hook für $showModal Update von Alpine.
-     */
-    public function updatedShowModal(bool $value): void
-    {
-        Log::info('ModalManager: updatedShowModal hook fired.', ['new_value' => $value]);
-        if (!$value) {
-            // Reset verzögert ausführen, nur wenn das Modal geschlossen bleibt
-            Log::info('ModalManager: Scheduling delayed resetState via JS.');
-            $this->js('setTimeout(() => { $wire.resetState() }, 300)');
-        } else {
-            Log::info('ModalManager: updatedShowModal hook - modal opened.');
-        }
     }
 
     /**
@@ -128,7 +113,7 @@ new class extends Component
                 @if($activeModalComponent)
                     <livewire:is
                         :component="$activeModalComponent"
-                        wire:key="'modal-content-'. $activeModalComponent"
+                        :key="'modal-content-' . $activeModalComponent"
                     />
                 @else
                      <div class="text-center p-4 text-gray-500 dark:text-gray-400">
