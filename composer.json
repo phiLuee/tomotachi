@@ -13,8 +13,9 @@
         "filament/filament": "^3.3",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "livewire/livewire": "^3.4",
+        "livewire/livewire": "^3.6",
         "livewire/volt": "^1.7.0",
+        "robsontenorio/mary": "^2.2",
         "spatie/laravel-data": "^4.15",
         "spatie/laravel-permission": "^6.17"
     },
