@@ -1,19 +1,21 @@
 {
   "name": "Tomotachi",
-  "dockerFile": "Dockerfile",
-  "context": ".",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/home/user/workspace",
   "remoteUser": "user",
-  "runArgs": [
-    "-v",
-    "${env:SSH_AUTH_SOCK}:/ssh-agent",
-    "-e",
-    "SSH_AUTH_SOCK=/ssh-agent"
-  ],
   "customizations": {
     "vscode": {
       "settings": {
-        "php.validate.executablePath": "/usr/local/bin/php"
-      }
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "ms-azuretools.vscode-docker",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
     }
   }
 }
