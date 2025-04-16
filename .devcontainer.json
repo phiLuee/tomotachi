@@ -1,0 +1,19 @@
+{
+  "name": "Tomotachi",
+  "dockerFile": "Dockerfile",
+  "context": ".",
+  "remoteUser": "user",
+  "runArgs": [
+    "-v",
+    "${env:SSH_AUTH_SOCK}:/ssh-agent",
+    "-e",
+    "SSH_AUTH_SOCK=/ssh-agent"
+  ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php"
+      }
+    }
+  }
+}
