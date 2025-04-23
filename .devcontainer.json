@@ -13,8 +13,15 @@
       "extensions": [
         "bmewburn.vscode-intelephense-client",
         "ms-azuretools.vscode-docker",
+        "docker.docker",
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "riussi.code-stats-vscode",
+        "xdebug.php-debug",
+        "christian-kohler.npm-intellisense",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
       ]
     }
   }
