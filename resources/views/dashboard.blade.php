@@ -10,7 +10,7 @@
                 <livewire:createpost />
             </div>
             <div class="p-6 text-gray-900 dark:text-gray-100">
-                <livewire:timeline />
+                <livewire:components.timeline />
             </div>
         </div>
     </div>

@@ -3,6 +3,7 @@
 use App\Livewire\Forms\LoginForm;
 use Illuminate\Support\Facades\Session;
 use Livewire\Volt\Component;
+use Illuminate\Support\Facades\Log;
 
 new class extends Component
 {
@@ -20,11 +21,11 @@ new class extends Component
         // Rufe die Authentifizierungsmethode des Form Objects auf.
         // Diese sollte bei Fehler eine ValidationException werfen.
         try {
-             $this->form->authenticate();
+            $this->form->authenticate();
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Fehler werden von Livewire automatisch angezeigt.
             // Verhindere, dass die Methode weiterläuft.
-             return;
+            return;
         }
 
         // Session regenerieren (wichtig nach Login)
@@ -53,13 +54,13 @@ new class extends Component
     {{-- Zeige allgemeine Authentifizierungsfehler (z.B. von Throttling, auth.failed) --}}
     {{-- Das LoginForm muss diese Fehler ggf. setzen oder eine Exception werfen,
          die einen passenden Fehlerkey für @error unten produziert --}}
-     @error('form.auth') {{-- Beispielhafter Key, prüfe das LoginForm --}}
-        <div class="mb-4 p-3 text-sm text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-300 rounded-md" role="alert">
-            {{ $message }}
-        </div>
+    @error('form.auth') {{-- Beispielhafter Key, prüfe das LoginForm --}}
+    <div class="mb-4 p-3 text-sm text-red-700 bg-red-100 dark:bg-red-900/30 dark:text-red-300 rounded-md" role="alert">
+        {{ $message }}
+    </div>
     @enderror
-     {{-- Session Status (optional im Modal) --}}
-     {{-- <x-auth-session-status class="mb-4" :status="session('status')" /> --}}
+    {{-- Session Status (optional im Modal) --}}
+    {{-- <x-auth-session-status class="mb-4" :status="session('status')" /> --}}
 
     <form wire:submit="login">
         <div>
@@ -71,9 +72,9 @@ new class extends Component
         <div class="mt-4">
             <x-input-label for="modal-password" :value="__('Password')" /> {{-- Ggf. ID ändern --}}
             <x-text-input wire:model="form.password" id="modal-password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+                type="password"
+                name="password"
+                required autocomplete="current-password" />
             <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
         </div>
 
@@ -88,10 +89,10 @@ new class extends Component
             {{-- Passwort vergessen Link im Modal eher weglassen --}}
             {{-- @if (Route::has('password.request')) ... @endif --}}
 
-             <x-primary-button class="ms-3" wire:loading.attr="disabled">
-                 <span wire:loading wire:target="login">{{ __('Logging in...') }}</span>
-                 <span wire:loading.remove wire:target="login">{{ __('Log in') }}</span>
-             </x-primary-button>
+            <x-primary-button class="ms-3" wire:loading.attr="disabled">
+                <span wire:loading wire:target="login">{{ __('Logging in...') }}</span>
+                <span wire:loading.remove wire:target="login">{{ __('Log in') }}</span>
+            </x-primary-button>
         </div>
     </form>
 </div>

@@ -20,7 +20,7 @@ new
                 </div>
                 @if (Route::has('login'))
                 {{-- !! Deine Welcome-Navigation Komponente !! --}}
-                <livewire:welcome.navigation />
+                <livewire:components.navigation />
                 @endif
             </header>
 

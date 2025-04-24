@@ -18,9 +18,9 @@
 
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-        @if (auth()->user())
-        <livewire:layout.navigation />
-        @endif
+        {{-- @if (auth()->user())
+            <livewire:layout.navigation />
+        @endif  --}}
 
         <!-- Page Heading -->
         @if (isset($header))
