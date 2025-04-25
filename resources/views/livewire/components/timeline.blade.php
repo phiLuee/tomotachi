@@ -10,7 +10,7 @@ use Livewire\Attributes\Computed;
 // Definiere die Volt-Komponente
 new class extends Component
 {
-
+    public ?int $userId = null;
     protected $listeners = ['post-created' => 'refreshPosts'];
 
     /**
@@ -22,36 +22,39 @@ new class extends Component
     #[Computed]
     public function posts(): Collection
     {
-        // Sicherstellen, dass der User eingeloggt ist
-        if (!Auth::check()) {
-            return collect(); // Leere Collection zurückgeben, wenn nicht eingeloggt
+        // Starte den Query Builder
+        $query = Post::query();
+
+        // Prüfe, ob eine spezifische userId übergeben wurde
+        if ($this->userId !== null) {
+            // Filtere nur nach der übergebenen userId
+            $query->where('user_id', $this->userId);
+        } else {
+            // Standardverhalten: Zeige Posts von gefolgten Usern und eigene Posts
+            if (!Auth::check()) {
+                return collect(); // Leere Collection zurückgeben, wenn nicht eingeloggt
+            }
+
+            $user = Auth::user();
+            $followedUserIds = $user->following()->pluck('users.id');
+            $followedUserIds->push($user->id); // Eigene ID hinzufügen
+
+            $query->whereIn('user_id', $followedUserIds);
         }
 
-        $user = Auth::user();
-
-        // Annahme: Du hast eine 'following'-Relation im User-Model definiert,
-        // die die User zurückgibt, denen der aktuelle User folgt.
-        // Beispiel: return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id');
-        $followedUserIds = $user->following()->pluck('users.id'); // IDs der gefolgten User holen
-
-        // Füge die ID des aktuellen Users hinzu, um auch eigene Posts zu sehen
-        $followedUserIds->push($user->id);
-
-        // Hole die Posts der gefolgten User und des eigenen Users
-        return Post::whereIn('user_id', $followedUserIds) // Nur Posts dieser User
-                   ->with('user:id,name,username') // Eager Loading: Lade den zugehörigen User mit (nur relevante Spalten)
-                   ->latest() // Sortiere nach Datum, neueste zuerst
-                   ->get(); // Hole die Ergebnisse als Collection
+        // Wende gemeinsame Bedingungen und Eager Loading an
+        return $query->with('user:id,name,username') // Lade User-Infos effizient
+                   ->latest() // Sortiere nach Datum
+                   ->get(); // Hole die Ergebnisse
     }
 
     /**
      * Optional: Was soll passieren, wenn die Komponente zum ersten Mal geladen wird?
      * Kann leer bleiben, wenn die Logik in #[Computed] ist.
      */
-    public function mount(): void
+    public function mount(?int $userId = null): void
     {
-        // Hier könntest du initiale Dinge tun, falls nötig.
-        // Oft ist es aber sauberer, die Daten über #[Computed] zu laden.
+        $this->userId = $userId;
     }
 
 
