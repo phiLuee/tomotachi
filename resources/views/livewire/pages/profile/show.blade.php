@@ -23,7 +23,7 @@ new
 
  <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> 
             <div>
                 <p>Profile: {{ $username }}</p>
                 <p>Angemeldet als: {{ auth()->user()?->username }}</p>
@@ -38,9 +38,11 @@ new
                 <p>Letzte Aktivität: {{ $user->last_activity?->format('d.m.Y H:i') }}</p>
             </div>
             <div>
-                <div class="p-6">
-                    <livewire:createpost />
-                </div>
+                @auth
+                    <div class="p-6">
+                        <livewire:createpost />
+                    </div>
+                @endauth
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <livewire:components.timeline :user-id="$user->id" />
                 </div>

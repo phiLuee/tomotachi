@@ -89,7 +89,7 @@ new class extends Component
 
                 <div>
                     {{-- User-Name (ggf. Link zum Profil) --}}
-                    <a href="#" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline">
+                    <a href="{{ route('profile.show', ['username' => $post->user->username]) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline">
                        {{ $post->user->name ?? 'Unknown User' }}
                     </a>
                     {{-- Optional: Username --}}
