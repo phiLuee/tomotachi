@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Models;
@@ -8,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Auth;
 
 class Post extends Model
 {
@@ -28,7 +31,7 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-     /**
+    /**
      * get root post if exist
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -71,5 +74,33 @@ class Post extends Model
     public function media(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediable');
+    }
+
+    /**
+     * Die Benutzer, die diesen Post geliked haben.
+     */
+    public function likers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,        // Verknüpftes Model
+            'likes',            // Name der Pivot-Tabelle
+            'post_id',          // Foreign Key des aktuellen Models (Post) in der Pivot-Tabelle
+            'user_id'           // Foreign Key des verknüpften Models (User) in der Pivot-Tabelle
+        )->withTimestamps();     // Lädt die created_at/updated_at Timestamps der Pivot-Tabelle
+    }
+
+    /**
+     * Prüft, ob der aktuell eingeloggte Benutzer diesen Post geliked hat.
+     *
+     * @return bool
+     */
+    public function isLikedByCurrentUser(): bool
+    {
+        if (!Auth::check()) {
+            return false; // Nicht eingeloggte Benutzer können nichts geliked haben
+        }
+
+        // Prüft effizient, ob eine Beziehung für den aktuellen Benutzer existiert
+        return $this->likers()->where('user_id', Auth::id())->exists();
     }
 }

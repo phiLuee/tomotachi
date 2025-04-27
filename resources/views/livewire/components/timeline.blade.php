@@ -44,6 +44,7 @@ new class extends Component
 
         // Wende gemeinsame Bedingungen und Eager Loading an
         return $query->with('user:id,name,username') // Lade User-Infos effizient
+                    ->withCount('likers') // Lade die Anzahl der Likes
                    ->latest() // Sortiere nach Datum
                    ->get(); // Hole die Ergebnisse
     }
@@ -73,6 +74,60 @@ new class extends Component
 
         // Optional: Nach oben scrollen, wenn ein neuer Post erstellt wurde
         // $this->js('window.scrollTo({ top: 0, behavior: "smooth" })');
+    }
+
+    public function confirmDelete(int $postId): void
+    {
+        $post = Post::findOrFail($postId);
+
+        // Sicherheitscheck: Nur eigene Posts löschen
+        if (Auth::id() !== $post->user_id) {
+            // Optional: Fehlermeldung oder Event auslösen
+             $this->dispatch('notify', 'Du kannst nur deine eigenen Posts löschen.', 'error');
+            return;
+        }
+
+        $post->delete();
+
+        // Computed Property Cache leeren, damit die Liste aktualisiert wird
+        unset($this->posts);
+
+        // Optional: Erfolgsmeldung
+        $this->dispatch('notify', 'Post erfolgreich gelöscht!');
+    }
+
+        /**
+     * Schaltet den Like-Status für einen Post für den eingeloggten Benutzer um.
+     */
+    public function toggleLike(int $postId): void
+    {
+        // Nur für eingeloggte Benutzer
+        if (!Auth::check()) {
+            // Optional: Redirect zum Login oder Fehlermeldung
+            $this->dispatch('notify', 'Bitte einloggen, um Posts zu liken.', 'info');
+            return;
+        }
+
+        $user = Auth::user(); 
+        $post = Post::find($postId); // Finde den Post
+
+        if (!$post) {
+            // Post wurde möglicherweise inzwischen gelöscht
+            $this->dispatch('notify', 'Post nicht gefunden.', 'error');
+            return;
+        }
+
+        // Schaltet den Like-Status um:
+        // - Fügt den Eintrag in der 'likes'-Tabelle hinzu, wenn er nicht existiert.
+        // - Entfernt den Eintrag, wenn er existiert.
+        $user->likedPosts()->toggle($postId);
+
+        // Computed Property Cache leeren, damit die Liste (insb. Like-Count und Button-Status)
+        // beim nächsten Rendern aktualisiert wird.
+        unset($this->posts);
+
+        // Optional: Event für UI-Updates oder Benachrichtigungen
+        // $this->dispatch('notify', 'Like-Status geändert!');
     }
 
 }; ?>
@@ -108,11 +163,69 @@ new class extends Component
                 {{ $post->content }}
             </p>
 
-            {{-- Optional: Platz für Aktionen wie Like, Kommentar etc. --}}
-            {{-- <div class="mt-4 flex space-x-4">
-                <button wire:click="toggleLike({{ $post->id }})" class="text-gray-500 hover:text-blue-600">Like</button>
-                <button class="text-gray-500 hover:text-green-600">Comment</button>
-            </div> --}}
+{{-- Like-Button und Zähler --}}
+            <div class="mt-4 flex items-center space-x-4"> {{-- Container für Like-Aktion und Zähler --}}
+                @auth {{-- Like-Button nur für eingeloggte User interaktiv --}}
+                    <button
+                        wire:click="toggleLike({{ $post->id }})"
+                        @class([
+                            'flex items-center space-x-1 text-sm transition-colors duration-150 ease-in-out focus:outline-none',
+                            'text-red-600 hover:text-red-700' => $post->isLikedByCurrentUser(), // Rote Farbe, wenn geliked
+                            'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400' => !$post->isLikedByCurrentUser(), // Grau/Rot beim Hover, wenn nicht geliked
+                        ])
+                        title="{{ $post->isLikedByCurrentUser() ? 'Unlike' : 'Like' }}"
+                    >
+                        {{-- Herz-Icon (SVG Beispiel) --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                        </svg>
+                        {{-- Optional: Text wie "Like" / "Unlike" --}}
+                        {{-- <span>{{ $post->isLikedByCurrentUser() ? 'Unlike' : 'Like' }}</span> --}}
+                    </button>
+                @else {{-- Für nicht eingeloggte User nur statische Anzeige --}}
+                    <span class="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                @endauth
+
+                {{-- Like-Zähler (immer sichtbar) --}}
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {{-- Verwende likers_count, das durch withCount geladen wird --}}
+                    {{ $post->likers_count }} {{ Str::plural('Like', $post->likers_count) }}
+                </span>
+            </div>
+             @auth
+                @if (Auth::id() === $post->user_id)
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center space-x-3"> {{-- Trennlinie und Abstand --}}
+
+                        {{-- Bearbeiten-Button (nur wenn Post < 15 Minuten alt) --}}
+                        @if ($post->created_at->gt(now()->subMinutes(15)))
+                            <button
+                                wire:click="startEditing({{ $post->id }})"
+                                class="text-sm text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+                                title="Bearbeiten"
+                            >
+                                Bearbeiten
+                            </button>
+                        @else
+                             {{-- Optional: Deaktivierten Button anzeigen oder ganz weglassen --}}
+                             <span class="text-sm text-gray-400 dark:text-gray-500 cursor-not-allowed" title="Bearbeitung nicht mehr möglich">Bearbeiten</span>
+                        @endif
+
+                        {{-- Löschen-Button mit Bestätigung --}}
+                        <button
+                            wire:click="confirmDelete({{ $post->id }})"
+                            wire:confirm="Möchtest du diesen Post wirklich löschen?"
+                            class="text-sm text-red-600 dark:text-red-400 hover:underline focus:outline-none"
+                            title="Löschen"
+                        >
+                            Löschen
+                        </button>
+                    </div>
+                @endif
+            @endauth
         </div>
     @empty
         {{-- Nachricht, wenn keine Posts vorhanden sind --}}

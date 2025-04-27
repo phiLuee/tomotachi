@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Models;
@@ -116,5 +117,18 @@ class User extends Authenticatable implements FilamentUser
     public function chatMessages(): HasMany
     {
         return $this->hasMany(ChatMessage::class);
+    }
+
+    /**
+     * Die Posts, die dieser Benutzer geliked hat.
+     */
+    public function likedPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Post::class,        // Verknüpftes Model
+            'likes',            // Name der Pivot-Tabelle
+            'user_id',          // Foreign Key des aktuellen Models (User) in der Pivot-Tabelle
+            'post_id'           // Foreign Key des verknüpften Models (Post) in der Pivot-Tabelle
+        )->withTimestamps();     // Lädt die created_at/updated_at Timestamps der Pivot-Tabelle
     }
 }
