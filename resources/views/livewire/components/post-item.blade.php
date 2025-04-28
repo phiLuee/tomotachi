@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use App\Models\Post;
 use Livewire\Volt\Component;
@@ -14,13 +15,30 @@ new class extends Component {
     public string $editedContent = '';
 
     /**
+     * Initialisiert die Komponente mit dem Post.
+     */
+    public function toggleLike(): void
+    {
+        if (!Auth::check()) {
+            $this->dispatch('notify', 'Bitte einloggen, um Posts zu liken.', 'info');
+            return;
+        }
+
+        $user = Auth::user();
+
+        // Schaltet den Like-Status um
+        $user->likedPosts()->toggle($this->post->id);
+
+        // Aktualisiere die Anzahl der Likes und den Status
+        $this->post->loadCount('likers'); // Aktualisiert die Anzahl der Likes
+    }
+
+    /**
      * Startet den Bearbeitungsmodus.
      */
     public function startEditing(): void
     {
-        // Sicherheitschecks (Besitzer, Zeitlimit)
         if (Auth::id() !== $this->post->user_id || !$this->post->created_at->gt(now()->subMinutes(15))) {
-            // Optional: Fehlermeldung
             $this->dispatch('notify', 'Bearbeitung nicht erlaubt.', 'error');
             return;
         }
@@ -77,6 +95,7 @@ new class extends Component {
 
     {{-- Post-Inhalt --}}
     @if ($isEditing)
+        {{-- Post-Inhalt (Edit-Mode) --}}
         <div class="mt-2">
             <textarea
                 wire:model="editedContent"
@@ -103,7 +122,7 @@ new class extends Component {
     <div class="mt-4 flex items-center space-x-4">
         @auth
             <button
-                wire:click="$dispatch('toggle-like', { postId: {{ $this->post->id }} })" {{-- Event nach oben senden --}}
+                wire:click="toggleLike" {{-- Event nach oben senden --}}
                 @class(['flex items-center space-x-1 text-sm transition-colors duration-150 ease-in-out focus:outline-none', 'text-red-600 hover:text-red-700' => $this->post->isLikedByCurrentUser(), 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400' => !$this->post->isLikedByCurrentUser()])
                 title="{{ $this->post->isLikedByCurrentUser() ? 'Unlike' : 'Like' }}"
             >

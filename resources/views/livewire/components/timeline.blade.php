@@ -1,6 +1,6 @@
 <?php
+declare(strict_types=1);
 
-// Importiere notwendige Klassen am Anfang
 use App\Models\Post; 
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Database\Eloquent\Collection; 
@@ -8,7 +8,6 @@ use Livewire\Volt\Component;
 use Livewire\Attributes\Computed; 
 use Livewire\Attributes\On;
 
-// Definiere die Volt-Komponente
 new class extends Component
 {
     public ?int $userId = null;
@@ -84,57 +83,6 @@ new class extends Component
     public function refreshPosts(): void
     {
         unset($this->posts);
-    }
-
-    /**
-     * Schaltet den Like-Status für einen Post für den eingeloggten Benutzer um.
-     */
-    #[On('toggle-like')]
-    public function toggleLike(int $postId): void
-    {
-        logger('--> toggleLike aufgerufen für Post ID: ' . $postId); // Test 1
-        // Nur für eingeloggte Benutzer 
-        if (!Auth::check()) {
-            // Optional: Redirect zum Login oder Fehlermeldung
-            $this->dispatch('notify', 'Bitte einloggen, um Posts zu liken.', 'info');
-            return;
-        }
- 
-        $user = Auth::user(); 
-        $post = Post::find($postId); // Finde den Post
-
-        if (!$post) {
-            // Post wurde möglicherweise inzwischen gelöscht
-            $this->dispatch('notify', 'Post nicht gefunden.', 'error');
-            return;
-        }
-
-        // Schaltet den Like-Status um:
-        // - Fügt den Eintrag in der 'likes'-Tabelle hinzu, wenn er nicht existiert.
-        // - Entfernt den Eintrag, wenn er existiert.
-        $user->likedPosts()->toggle($postId);
-
-        // Computed Property Cache leeren, damit die Liste (insb. Like-Count und Button-Status)
-        // beim nächsten Rendern aktualisiert wird.
-        unset($this->posts);
-
-        // Optional: Event für UI-Updates oder Benachrichtigungen
-        $this->dispatch('notify', 'Like-Status geändert!');
-    }
-
-    #[On('start-editing')]
-    public function handleStartEditing(int $postId): void
-    {
-         $post = Post::find($postId);
-         if (!$post || Auth::id() !== $post->user_id || !$post->created_at->gt(now()->subMinutes(15))) {
-             // Optional: Fehlermeldung
-             return;
-         }
-         // TODO: Logik zum Anzeigen der Bearbeitungs-UI implementieren
-         // Dies könnte komplexer sein und erfordert möglicherweise eine weitere Komponente
-         // oder das Einblenden eines Modals/Inline-Editors.
-         logger()->info("Timeline empfing start-editing für Post ID: {$postId}");
-         $this->dispatch('notify', 'Bearbeitungsmodus angefordert (UI noch nicht implementiert).');
     }
 
 }; ?>
