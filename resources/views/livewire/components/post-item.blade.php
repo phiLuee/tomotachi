@@ -30,7 +30,13 @@ new class extends Component {
         $user->likedPosts()->toggle($this->post->id);
 
         // Aktualisiere die Anzahl der Likes und den Status
-        $this->post->loadCount('likers'); // Aktualisiert die Anzahl der Likes
+        $this->post->loadCount('likers'); 
+        $this->post->setAttribute(
+            'is_liked_by_current_user',
+            $this->post->likers()->where('user_id', Auth::id())
+            ->exists()
+    );
+
     }
 
     /**
@@ -122,7 +128,7 @@ new class extends Component {
     <div class="mt-4 flex items-center space-x-4">
         @auth
             <button
-                wire:click="toggleLike" {{-- Event nach oben senden --}}
+                wire:click="toggleLike"
                 @class(['flex items-center space-x-1 text-sm transition-colors duration-150 ease-in-out focus:outline-none', 'text-red-600 hover:text-red-700' => $this->post->is_liked_by_current_user, 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400' => !$this->post->is_liked_by_current_user])
                 title="{{ $this->post->is_liked_by_current_user ? 'Unlike' : 'Like' }}"
             >
