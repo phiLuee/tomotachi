@@ -34,8 +34,8 @@ new class extends Component
         Auth::user()->posts()->create([
             'content' => $validated['content'], // Verwende den validierten Inhalt
         ]);
-
-        // Textfeld leeren nach erfolgreichem Speichern
+ 
+        // Textfeld leeren nach erfolgreichem Speichern 
         $this->reset('content');
         // oder: $this->content = '';
 
@@ -44,14 +44,8 @@ new class extends Component
         $this->dispatch('post-created'); // Event aussenden
 
         // Optional: Session Flash Message für direktes Feedback
-        // session()->flash('status', 'Post erfolgreich erstellt!');
+        session()->flash('status', 'Post erfolgreich erstellt!');
     }
-
-    // Optional: Mit leeren Properties starten (Standard, aber explizit möglich)
-    // public function mount(): void
-    // {
-    //     $this->content = '';
-    // }
 
 }; ?>
 
