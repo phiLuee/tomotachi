@@ -123,8 +123,8 @@ new class extends Component {
         @auth
             <button
                 wire:click="toggleLike" {{-- Event nach oben senden --}}
-                @class(['flex items-center space-x-1 text-sm transition-colors duration-150 ease-in-out focus:outline-none', 'text-red-600 hover:text-red-700' => $this->post->isLikedByCurrentUser(), 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400' => !$this->post->isLikedByCurrentUser()])
-                title="{{ $this->post->isLikedByCurrentUser() ? 'Unlike' : 'Like' }}"
+                @class(['flex items-center space-x-1 text-sm transition-colors duration-150 ease-in-out focus:outline-none', 'text-red-600 hover:text-red-700' => $this->post->is_liked_by_current_user, 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400' => !$this->post->is_liked_by_current_user])
+                title="{{ $this->post->is_liked_by_current_user ? 'Unlike' : 'Like' }}"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"> <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" /> </svg>
             </button>

@@ -45,6 +45,12 @@ new class extends Component
         // Wende gemeinsame Bedingungen und Eager Loading an
         return $query->with('user:id,name,username') // Lade User-Infos effizient
                     ->withCount('likers') // Lade die Anzahl der Likes
+                    ->addSelect([
+                     'is_liked_by_current_user' => Post::selectRaw('COUNT(*) > 0')
+                         ->from('likes')
+                         ->whereColumn('likes.post_id', 'posts.id')
+                         ->where('likes.user_id', Auth::id())
+                    ])
                     ->latest() // Sortiere nach Datum
                     ->get(); // Hole die Ergebnisse
     }
