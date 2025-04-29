@@ -27,7 +27,6 @@ new class extends Component
     /**
      * The collection of posts accumulated across multiple pages.
      * Used for infinite scrolling.
-     * Initialized in mount() or directly if PHP >= 8.0.
      * @var \Illuminate\Support\Collection<int, \App\Models\Post>
      */
     public Collection $accumulatedPosts;
