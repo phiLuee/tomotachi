@@ -61,8 +61,9 @@ new class extends Component
 
     /**
      * Initialisiert die Komponente mit der übergebenen userId.
-     * Wenn keine userId übergeben wird, werden die Posts
-     * von den Usern angezeigt, denen der eingeloggte User folgt.
+     * Wenn eine userId übergeben wird, werden nur die Posts
+     * des jeweiligen Users angezeigt, ansonsten auch die Posts
+     * von den gefolgten Benutzern.
      */
     public function mount(?int $userId = null): void
     {
