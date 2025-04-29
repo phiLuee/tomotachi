@@ -127,7 +127,7 @@ new class extends Component {
     {{-- Like-Button und Zähler --}}
     <div class="mt-4 flex items-center space-x-4">
         @auth
-            <button
+            <button 
                 wire:click="toggleLike"
                 @class(['flex items-center space-x-1 text-sm transition-colors duration-150 ease-in-out focus:outline-none', 'text-red-600 hover:text-red-700' => $this->post->is_liked_by_current_user, 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400' => !$this->post->is_liked_by_current_user])
                 title="{{ $this->post->is_liked_by_current_user ? 'Unlike' : 'Like' }}"

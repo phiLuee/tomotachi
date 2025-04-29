@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Collection;
 use Livewire\Volt\Component;
 use Livewire\Attributes\Computed; 
 use Livewire\Attributes\On;
+use Livewire\WithPagination;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 new class extends Component
 {
+    use WithPagination;
+
     public ?int $userId = null;
+    public Collection $accumulatedPosts;
 
     /**
      * Berechne die Posts für die Timeline.
@@ -19,9 +24,8 @@ new class extends Component
      * bei mehreren Zugriffen im selben Render-Zyklus zu vermeiden.
      */
     #[Computed]
-    public function posts(): Collection
+    public function posts(): LengthAwarePaginator
     {
-        logger("--> posts() aufgerufen"); // Test 1
         // Starte den Query Builder
         $query = Post::query();
 
@@ -52,16 +56,19 @@ new class extends Component
                          ->where('likes.user_id', Auth::id())
                     ])
                     ->latest() // Sortiere nach Datum
-                    ->get(); // Hole die Ergebnisse
+                    ->paginate(10); // Hole die Ergebnisse
     }
 
     /**
-     * Optional: Was soll passieren, wenn die Komponente zum ersten Mal geladen wird?
-     * Kann leer bleiben, wenn die Logik in #[Computed] ist.
+     * Initialisiert die Komponente mit der übergebenen userId.
+     * Wenn keine userId übergeben wird, werden die Posts
+     * von den Usern angezeigt, denen der eingeloggte User folgt.
      */
     public function mount(?int $userId = null): void
     {
         $this->userId = $userId;
+        $this->gotoPage(1);
+        $this->accumulatedPosts = new Collection($this->posts()->items());
     }
 
     #[On('confirm-delete')]
@@ -77,41 +84,70 @@ new class extends Component
         }
 
         $post->delete();
+        $this->refreshPosts();
 
-        // Computed Property Cache leeren, damit die Liste aktualisiert wird
-        unset($this->posts);
-
-        // Optional: Erfolgsmeldung
         $this->dispatch('notify', 'Post erfolgreich gelöscht!');
     }
 
     #[On('post-created')]
     public function refreshPosts(): void
     {
+        // Paginierung zurücksetzen und Computed Property Cache leeren
+        $this->resetPage();
         unset($this->posts);
+
+        // Akkumulierte Posts neu mit Seite 1 laden
+        $this->accumulatedPosts = new Collection($this->posts()->items());
+    }
+
+    /**
+     * Diese Methode wird aufgerufen, wenn der Benutzer auf "Mehr laden" klickt.
+     * Sie lädt die nächste Seite der Pagination.
+     */
+    public function loadMore(): void
+    {
+        $this->nextPage();
+        // Hole die Posts der *neuen* aktuellen Seite
+        $newPosts = $this->posts()->items();
+        // Füge die neuen Posts zu den bereits vorhandenen hinzu
+        $this->accumulatedPosts = $this->accumulatedPosts->concat($newPosts);
     }
 
 }; ?>
 
 <div class="space-y-6"> {{-- Fügt vertikalen Abstand zwischen den Posts hinzu --}}
-
     {{-- Prüfe, ob Posts vorhanden sind, und loope durch sie hindurch --}}
-    @forelse ($this->posts() as $post)
+    @forelse ($accumulatedPosts as $post)
         {{-- Container für jeden einzelnen Post --}}
-                <livewire:components.post-item :post="$post" wire:key="post-item-{{ $post->id }}" />
+        <livewire:components.post-item :post="$post" wire:key="post-item-{{ $post->id }}" />
     @empty
         {{-- Nachricht, wenn keine Posts vorhanden sind --}}
         <div class="text-center text-gray-500 dark:text-gray-400 py-8">
             <p>Noch keine Posts vorhanden.</p>
             <p class="mt-2">Folge anderen Nutzern, um ihre Posts hier zu sehen!</p>
-            {{-- Oder wenn nur eigene Posts angezeigt werden: --}}
-            {{-- <p>Du hast noch nichts gepostet.</p> --}}
         </div>
     @endforelse
 
-    {{-- Optional: Hier könnten später Pagination-Links hin, wenn du ->paginate() statt ->get() verwendest --}}
-    {{-- <div class="mt-4">
-        {{ $this->posts()->links() }}
-    </div> --}}
+    {{-- Infinite Scrolling --}}
+    @if ($this->posts()->hasMorePages())
+        <div
+            x-data="{
+                observe() {
+                    let observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                @this.call('loadMore');
+                            }
+                        });
+                    });
 
+                    observer.observe(this.$el);
+                }
+            }"
+            x-init="observe"
+            class="text-center py-4 text-gray-500"
+        >
+            Lädt weitere Posts...
+        </div>
+    @endif
 </div>
