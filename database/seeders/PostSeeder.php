@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Database\Seeders;
@@ -9,6 +10,11 @@ use App\Models\User;
 
 class PostSeeder extends Seeder
 {
+
+    private int $postsCount = 100;
+    private int $commentsCount = 200;
+
+
     /**
      * Run the database seeds.
      */
@@ -19,9 +25,9 @@ class PostSeeder extends Seeder
             return;
         }
 
-        Post::factory()->count(50)->mainPost()->create();
-        Post::factory()->count(50)->comment()->create();
+        Post::factory()->count($this->postsCount)->mainPost()->create();
+        Post::factory()->count($this->commentsCount)->comment()->create();
 
-        $this->command->info('PostSeeder executed: Created 50 random posts.');
+        $this->command->info('PostSeeder executed: Created ' . $this->postsCount . ' random posts and ' . $this->commentsCount . ' comments.');
     }
 }

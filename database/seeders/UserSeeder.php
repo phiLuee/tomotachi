@@ -10,6 +10,8 @@ use App\Models\User;
 
 class UserSeeder extends Seeder
 {
+    private int $userCount = 50;
+
     /**
      * Run the database seeds.
      */
@@ -31,15 +33,15 @@ class UserSeeder extends Seeder
             'password' => Hash::make('user@example.com'),
         ]);
 
-        $user->assignRole('admin');
+        $user->assignRole('user');
 
         User::factory()
-            ->count(10)
+            ->count($this->userCount)
             ->create()
             ->each(function ($user) {
                 $user->assignRole('user');
             });;
 
-        $this->command->info('UserSeeder executed: Created test user and 10 random users.');
+        $this->command->info('UserSeeder executed: Created test users and ' . $this->userCount. ' random users.');
     }
 }
