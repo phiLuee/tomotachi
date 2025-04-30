@@ -14,6 +14,9 @@ new
     #[Title('Profile')]
     class extends Component {
         public string $username;
+        public int $postsCount = 0;
+        public int $followersCount = 0;
+        public int $followingCount = 0;
         public ?User $user;
 
         // Entkommentieren Sie die mount-Methode
@@ -21,6 +24,9 @@ new
         {
             $this->username = $username;
             $this->user = User::where('username', $username)->firstOrFail();
+            $this->postsCount = $this->user->posts()->count();
+            $this->followersCount = $this->user->followers()->count();
+            $this->followingCount = $this->user->following()->count();
         }
     }; ?>
 
@@ -46,6 +52,30 @@ new
              alt="Profilbild"
              class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover bg-gray-200" />
     </div>
+
+    {{-- Statistiken: Posts, Follower, Following --}}
+        <div class="absolute bottom-4 left-40 flex space-x-8 bg-white/80 rounded-lg px-6 py-2 shadow z-10">
+            <div class="flex flex-col items-center">
+                <span class="font-bold text-lg">{{ $postsCount }}</span>
+                <span class="text-xs text-gray-500">Beiträge</span>
+            </div>
+            <button
+                type="button"
+                class="flex flex-col items-center focus:outline-none hover:text-blue-600 transition"
+                wire:click="$dispatch('open-modal', { component: 'components.follow-list', data: @js(['userId' => $user->id, 'type' => 'followers']) })"
+            >
+                <span class="font-bold text-lg">{{ $followersCount }}</span>
+                <span class="text-xs text-gray-500">Follower</span>
+            </button>
+            <button
+                type="button"
+                class="flex flex-col items-center focus:outline-none hover:text-blue-600 transition"
+                wire:click="$dispatch('open-modal', { component: 'components.follow-list', data: @js(['userId' => $user->id, 'type' => 'following']) })"
+            >
+                <span class="font-bold text-lg">{{ $followingCount }}</span>
+                <span class="text-xs text-gray-500">Folgt</span>
+            </button>
+        </div>
 </div>
  <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

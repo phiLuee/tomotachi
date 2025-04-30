@@ -1,9 +1,11 @@
 <?php
 
+use Livewire\Volt\Attributes\AllowDynamicProperties;
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+
 
 new class extends Component
 {
@@ -59,6 +61,30 @@ new class extends Component
     }
 
     /**
+     * Computes the properties to pass to the dynamic component.
+     * Converts snake_case keys from $modalComponentData to camelCase keys.
+     *
+     * @return array<string, mixed>
+     */
+    #[Computed]
+    public function componentProps(): array
+    {
+        if (empty($this->modalComponentData)) {
+            return []; // Always return an array
+        }
+
+        $props = [];
+        foreach ($this->modalComponentData as $key => $value) {
+            // Livewire typically maps kebab-case attributes to camelCase props,
+            // but passing camelCase keys directly from here is cleaner.
+            $props[Str::camel($key)] = $value;
+        }
+        Log::debug('ModalManager: Computed component props.', ['props' => array_keys($props)]);
+        return $props;
+    }
+
+
+    /**
      * Berechnet Props für die dynamische Komponente.
      */
     public function getComponentPropsProperty(): array
@@ -111,10 +137,11 @@ new class extends Component
             >
                 {{-- Dynamischer Inhalt --}}
                 @if($activeModalComponent)
-                    <livewire:is
-                        :component="$activeModalComponent"
-                        :key="'modal-content-' . $activeModalComponent"
-                    />
+                    @livewire(
+                        $activeModalComponent,
+                        $this->componentProps,
+                        key('modal-content-' . $activeModalComponent . '-' . md5(json_encode($this->componentProps))) {{-- Dynamic key --}}
+                    )
                 @else
                      <div class="text-center p-4 text-gray-500 dark:text-gray-400">
                         <p>NO COMPONENT</p>
