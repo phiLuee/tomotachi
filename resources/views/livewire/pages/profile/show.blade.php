@@ -24,7 +24,20 @@ new
         }
     }; ?>
 
+<div>
+    <div class="relative w-full h-64 mb-16">
+    {{-- Headerbild (Testbild) --}}
+    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+         alt="Header"
+         class="object-cover w-full h-full rounded-b-xl shadow" />
 
+    {{-- Nutzerbild, unten links, rund, leicht überlappend --}}
+    <div class="absolute -bottom-12 left-8">
+        <img src="{{ $user->profile_image ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->username) }}"
+             alt="Profilbild"
+             class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover bg-gray-200" />
+    </div>
+</div>
  <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> 
@@ -57,3 +70,4 @@ new
         </div>
     </div>
 </div> 
+</div>
