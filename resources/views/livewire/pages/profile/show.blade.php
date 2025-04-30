@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace App\Livewire\Pages\Profile;
+
 use App\Models\User;
 use Livewire\Volt\Component;
 use Livewire\Attributes\{Layout, Title};
@@ -36,6 +40,9 @@ new
                 <p>Beigetreten am: {{ $user->created_at?->format('d.m.Y') }}</p>
                 <p>Aktualisiert am: {{ $user->updated_at?->format('d.m.Y') }}</p>
                 <p>Letzte Aktivität: {{ $user->last_activity?->format('d.m.Y H:i') }}</p>
+                @if(auth()->check() && auth()->id() !== $user->id)
+                <livewire:components.follow-button :user="$user" />
+@endif
             </div>
             <div>
                 @auth
