@@ -31,6 +31,15 @@ new
          alt="Header"
          class="object-cover w-full h-full rounded-b-xl shadow" />
 
+
+            {{-- Button-Gruppe oben rechts im Headerbild --}}
+        <div class="absolute top-4 right-4 flex space-x-2 z-10">
+            @if(auth()->check() && auth()->id() !== $user->id)
+                <livewire:components.follow-button :user="$user" />
+            @endif
+            {{-- Platz für weitere Buttons --}}
+            {{-- <button class="px-4 py-2 rounded bg-gray-200">...</button> --}}
+        </div>
     {{-- Nutzerbild, unten links, rund, leicht überlappend --}}
     <div class="absolute -bottom-12 left-8">
         <img src="{{ $user->profile_image ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->username) }}"
@@ -53,9 +62,6 @@ new
                 <p>Beigetreten am: {{ $user->created_at?->format('d.m.Y') }}</p>
                 <p>Aktualisiert am: {{ $user->updated_at?->format('d.m.Y') }}</p>
                 <p>Letzte Aktivität: {{ $user->last_activity?->format('d.m.Y H:i') }}</p>
-                @if(auth()->check() && auth()->id() !== $user->id)
-                <livewire:components.follow-button :user="$user" />
-@endif
             </div>
             <div>
                 @auth

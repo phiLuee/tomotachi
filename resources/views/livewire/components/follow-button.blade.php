@@ -6,9 +6,10 @@ namespace App\Livewire\Components;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
 use Livewire\Volt\Component;
-use Illuminate\Contracts\Auth\Authenticatable; // Import Authenticatable
+use Illuminate\Contracts\Auth\Authenticatable;
 
 new class extends Component
 {
@@ -74,6 +75,9 @@ new class extends Component
         // Dispatch an event that other components might listen to (e.g., update follower count)
         $this->dispatch('follow-toggled', userId: $this->user->id);
     }
+
+    #[On('follow-toggled')]
+    public function refreshIfSameUser($userId) {}
 }; 
 ?>
 
