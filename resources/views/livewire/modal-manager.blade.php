@@ -1,8 +1,7 @@
 <?php
 
-use Livewire\Volt\Attributes\AllowDynamicProperties;
 use Livewire\Volt\Component;
-use Livewire\Attributes\On;
+use Livewire\Attributes\{On, Computed};
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
@@ -80,19 +79,6 @@ new class extends Component
             $props[Str::camel($key)] = $value;
         }
         Log::debug('ModalManager: Computed component props.', ['props' => array_keys($props)]);
-        return $props;
-    }
-
-
-    /**
-     * Berechnet Props für die dynamische Komponente.
-     */
-    public function getComponentPropsProperty(): array
-    {
-        $props = [];
-        foreach ($this->modalComponentData as $key => $value) {
-            $props[Str::camel($key)] = $value;
-        }
         return $props;
     }
 };
