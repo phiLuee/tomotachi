@@ -1,11 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Volt::route('/', 'pages.home.index');
+// Route für eingeloggte Benutzer (Dashboard)
+Volt::route('/', 'pages.home.index')
+    ->name('home'); // Benenne die Route (optional, aber nützlich)
 
-Route::view('dashboard', 'dashboard')
+
+// Route für eingeloggte Benutzer (Dashboard)
+Volt::route('/dashboard', 'pages.dashboard.index')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 

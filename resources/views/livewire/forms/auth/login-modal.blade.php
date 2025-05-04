@@ -42,7 +42,7 @@ new class extends Component
     public function handleAuthSuccess(): void
     {
         Log::info('welcome.navigation: Handling auth-successful, redirecting.'); // Log action
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        $this->redirect(route('home', absolute: false), navigate: true);
     }
 }; ?>
 

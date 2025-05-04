@@ -1,9 +1,16 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+
+<?php
+
+use Livewire\Volt\Component;
+use Livewire\Attributes\{Layout, Title};
+
+new
+    #[Layout('layouts.app')] // Setzt das Layout für die Seite
+    #[Title('Dashboard')] // Setzt den Seitentitel für das Dashboard
+    class extends Component {}; ?>
+
+<div>
+    {{-- Der Header wird jetzt im Wrapper-View gesetzt --}}
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="p-6">
@@ -14,5 +21,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
-   
+</div>
