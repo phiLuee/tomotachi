@@ -95,9 +95,11 @@ new
             </div>
             <div>
                 @auth
-                    <div class="p-6">
-                        <livewire:createpost />
-                    </div>
+                    @if(auth()->id() === $user->id)
+                        <div class="p-6">
+                            <livewire:components.createpost />
+                        </div>
+                    @endif
                 @endauth
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <livewire:components.timeline :user-id="$user->id" />
