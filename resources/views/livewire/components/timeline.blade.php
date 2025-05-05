@@ -192,7 +192,7 @@ new class extends Component
             currentPage: $this->getPage() // Use current page
         );
     }
-}; ?>
+} ?>
 
 <div class="space-y-6"> {{-- Vertical space between posts --}}
 

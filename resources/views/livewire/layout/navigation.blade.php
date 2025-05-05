@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace App\Livewire\Layout;
+
 use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
 
@@ -14,7 +18,7 @@ new class extends Component
 
         $this->redirect('/', navigate: true);
     }
-}; ?>
+} ?>
 
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
@@ -51,7 +55,7 @@ new class extends Component
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.show', auth()->user()->username)" wire:navigate>
+                        <x-dropdown-link :href="route('profile', auth()->user()->username)" wire:navigate>
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
@@ -93,7 +97,7 @@ new class extends Component
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.show', auth()->user()->username)" wire:navigate>
+                <x-responsive-nav-link :href="route('profile', auth()->user()->username)" wire:navigate>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 

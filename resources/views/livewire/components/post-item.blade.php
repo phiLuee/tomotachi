@@ -86,14 +86,14 @@ new class extends Component {
 
         $this->dispatch('notify', 'Post erfolgreich aktualisiert!');
     }
-}; ?>
+} ?>
 
 {{-- Container für den einzelnen Post --}}
 <div id="post-{{ $this->post->id }}" class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 border border-gray-200 dark:border-gray-700">
     {{-- User-Info & Zeitstempel --}}
     <div class="flex items-center mb-4">
         <div>
-            <a href="{{ route('profile.show', ['username' => $this->post->user->username]) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline">
+            <a href="{{ route('profile', ['username' => $this->post->user->username]) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline">
                {{ $this->post->user->name ?? 'Unknown User' }}
             </a>
             <div class="text-sm text-gray-500 dark:text-gray-400">

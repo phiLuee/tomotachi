@@ -1,5 +1,8 @@
-
 <?php
+
+declare(strict_types=1);
+
+namespace App\Livewire\Pages\Dashboard;
 
 use Livewire\Volt\Component;
 use Livewire\Attributes\{Layout, Title};

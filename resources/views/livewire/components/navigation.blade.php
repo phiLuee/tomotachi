@@ -32,7 +32,7 @@ new class extends Component
         // KORREKTUR: Benannte Argumente wieder verwenden
         $this->dispatch('open-modal', component: 'forms.auth.register-modal');
     }
-}; ?>
+} ?>
  
 {{-- Der HTML/Blade-Teil der Komponente (unverändert) --}}
 <nav class="-mx-3 flex flex-1 justify-end">

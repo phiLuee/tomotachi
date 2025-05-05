@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+namespace App\Livewire\Pages\Home;
+
 use Livewire\Volt\Component;
 use Livewire\Attributes\{Layout, Title};
 
 new
     #[Layout('layouts.app')]
     #[Title('Home')]
-    class extends Component {}; ?>
+    class extends Component {} ?>
 
 <div>
     @auth

@@ -2,10 +2,9 @@
 
 use Livewire\Volt\Volt;
 
-// Route für eingeloggte Benutzer (Dashboard)
-Volt::route('/', 'pages.home.index')
-    ->name('home'); // Benenne die Route (optional, aber nützlich)
 
+Volt::route('/', 'pages.home.index')
+    ->name('home');
 
 // Route für eingeloggte Benutzer (Dashboard)
 Volt::route('/dashboard', 'pages.dashboard.index')
@@ -13,11 +12,6 @@ Volt::route('/dashboard', 'pages.dashboard.index')
     ->name('dashboard');
 
 
-Volt::route('/@{username}', 'pages.profile.show')->name('profile.show');
-
-
-// Route::view('profile', 'profile')
-//     ->middleware(['auth'])
-//     ->name('profile');
+Volt::route('/@{username}', 'pages.profile.index')->name('profile');
 
 require __DIR__ . '/auth.php';

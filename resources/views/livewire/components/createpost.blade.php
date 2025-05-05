@@ -50,7 +50,7 @@ new class extends Component
         session()->flash('status', 'Post erfolgreich erstellt!');
     }
 
-}; ?>
+} ?>
 
 {{-- Blade-Teil der Volt-Komponente --}}
 <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 border border-gray-200 dark:border-gray-700">

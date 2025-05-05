@@ -85,8 +85,7 @@ new class extends Component
         Log::debug('ModalManager: Computed component props.', ['props' => array_keys($props)]);
         return $props;
     }
-};
-?>
+} ?>
 
 
 {{-- Blade / HTML Teil --}}

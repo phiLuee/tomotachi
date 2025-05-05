@@ -78,8 +78,7 @@ new class extends Component
 
     #[On('follow-toggled')]
     public function refreshIfSameUser($userId) {}
-}; 
-?>
+} ?>
 
 
 <div>
