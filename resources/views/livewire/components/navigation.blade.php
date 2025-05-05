@@ -1,7 +1,9 @@
 <?php
 
-// Stellt sicher, dass dies die Datei für die 'welcome.navigation' Komponente ist
-// z.B. resources/views/livewire/welcome/navigation.blade.php
+declare(strict_types=1);
+
+namespace App\Livewire\Components;
+
 
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;

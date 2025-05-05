@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace App\Livewire\Layout;
+
 use Livewire\Volt\Component;
 use Livewire\Attributes\{On, Computed};
 use Illuminate\Support\Str;

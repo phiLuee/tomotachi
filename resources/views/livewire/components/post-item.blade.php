@@ -1,5 +1,8 @@
 <?php
+
 declare(strict_types=1);
+
+namespace App\Livewire\Components;
 
 use App\Models\Post;
 use Livewire\Volt\Component;

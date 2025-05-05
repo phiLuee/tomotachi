@@ -1,8 +1,11 @@
 <?php
 
-// Importiere notwendige Klassen
+declare(strict_types=1);
+
+namespace App\Livewire\Components;
+
 use Livewire\Volt\Component;
-use Livewire\Attributes\Validate; // Für Livewire v3 Validation Attributes
+use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Auth;
 
 // Definiere die Volt-Komponente

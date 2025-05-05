@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Livewire\Components;
+
 use App\Models\User;
 use Livewire\Volt\Component;
 

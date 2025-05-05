@@ -36,7 +36,7 @@
             {{ $slot }}
         </main>
     </div>
-    <livewire:modal-manager />
+    <livewire:layout.modal-manager />
 </body>
 
 </html>
