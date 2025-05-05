@@ -91,10 +91,17 @@ new class extends Component {
 {{-- Container für den einzelnen Post --}}
 <div id="post-{{ $this->post->id }}" class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 border border-gray-200 dark:border-gray-700">
     {{-- User-Info & Zeitstempel --}}
-    <div class="flex items-center mb-4">
+    <div class="flex items-center space-x-3 mb-4"> {{-- space-x-3 für Abstand --}}
+        {{-- Profilbild --}}
+        <a href="{{ route('profile', ['username' => $this->post->user->username]) }}">
+            <img src="{{ $this->post->user->profile_image ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->post->user->username) . '&background=random' }}"
+                 alt="{{ $this->post->user->username }}"
+                 class="w-10 h-10 rounded-full object-cover bg-gray-200 dark:bg-gray-700 shadow"> {{-- Größe, Rundung, Schatten --}}
+        </a>
+        {{-- Container für Name und Zeit --}}
         <div>
             <a href="{{ route('profile', ['username' => $this->post->user->username]) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline">
-               {{ $this->post->user->name ?? 'Unknown User' }}
+               {{ $this->post->user->name ?? $this->post->user->username }} {{-- Zeige Namen, fallback auf Username --}}
             </a>
             <div class="text-sm text-gray-500 dark:text-gray-400">
                 {{ $this->post->created_at->diffForHumans() }}
@@ -122,7 +129,7 @@ new class extends Component {
         </div>
     @else
         {{-- Post-Inhalt (Normalansicht) --}}
-        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-4">
+        <p class="text-gray-700 dark:text-gray-300 mb-4">
             {{ $this->post->content }}
         </p>
     @endif
