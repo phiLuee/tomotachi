@@ -15,10 +15,10 @@ new
         public function closeCreatePostModal(): void
         {
             // Sende das Schließen-Event an den ModalManager
-            $this->dispatch('close-modal');
+            $this->dispatch('close-modal'); 
         }
 
-    }; ?>
+    }; ?> 
 
 <div>
     {{-- Definiert den Header-Slot für das app.blade.php Layout --}}

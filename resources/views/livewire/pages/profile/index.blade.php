@@ -14,7 +14,7 @@ new
 #[Title('Profile')] 
 class extends Component 
 { 
-    public string $username; 
+    public string $username;  
     public int $postsCount = 0;
     public int $followersCount = 0;
     public int $followingCount = 0;
@@ -59,7 +59,7 @@ class extends Component
                 <span class="font-bold text-lg">{{ $postsCount }}</span>
                 <span class="text-xs text-gray-500">Beiträge</span>
             </div>
-            <button
+            <button 
                 type="button"
                 class="flex flex-col items-center focus:outline-none hover:text-blue-600 transition"
                 wire:click="$dispatch('open-modal', { component: 'components.follow-list', data: @js(['userId' => $user->id, 'type' => 'followers']) })"
