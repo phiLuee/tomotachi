@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
+new 
+#[Layout('layouts.guest')] 
+class extends Component
 {
     public string $email = '';
 
@@ -34,7 +36,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         session()->flash('status', __($status));
     }
-}; ?>
+} ?>
 
 <div>
     <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">

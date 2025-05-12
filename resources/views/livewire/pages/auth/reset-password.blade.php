@@ -10,7 +10,9 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
+new 
+#[Layout('layouts.guest')] 
+class extends Component
 {
     #[Locked]
     public string $token = '';
@@ -67,7 +69,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         $this->redirectRoute('login', navigate: true);
     }
-}; ?>
+} ?>
 
 <div>
     <form wire:submit="resetPassword">

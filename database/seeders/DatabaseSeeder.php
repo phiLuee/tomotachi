@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Database\Seeders;
 
@@ -12,8 +13,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            RolePermissionSeeder::class,
             UserSeeder::class,
-            PostSeeder::class
+            FollowSeeder::class,
+            PostSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

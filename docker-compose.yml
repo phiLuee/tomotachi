@@ -1,0 +1,36 @@
+services:
+    workspace:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: development # Baue die Development-Phase für den Dev Container
+        volumes:
+            - .:/home/user/workspace:cached
+            # Mount für SSH-Agent
+            - ${SSH_AUTH_SOCK:-/tmp/ssh-agent.socket}:/ssh-agent:ro
+        environment:
+            SSH_AUTH_SOCK: /ssh-agent
+            # Füge hier weitere Entwicklungsumgebungsvariablen hinzu
+        working_dir: /home/user/workspace
+        ports:
+            - "8000:8000"
+            - "5173:5173"
+        # Behalte den Container am Laufen
+        tty: true
+        # Optional: Definiere einen Healthcheck für den Dev-Container
+        healthcheck:
+            test: ["CMD", "php", "-v"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+
+    # Optional: Service für Produktions-ähnliche Tests (ohne Volume Mount)
+    # app:
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile
+    #     target: production # Baue die Production-Phase
+    #   ports:
+    #     - "8080:80" # Beispiel: Port für Webserver
+    #   environment:
+    #     # Produktionsumgebungsvariablen
