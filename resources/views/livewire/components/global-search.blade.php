@@ -6,7 +6,6 @@ namespace App\Livewire\Components;
 
 use App\Models\User;
 use Livewire\Volt\Component;
-use Illuminate\Database\Eloquent\Collection;
 
 new class extends Component
 {
@@ -14,8 +13,8 @@ new class extends Component
     public array $users = [];
 
     /**
-     * Initializes the component.
-     * Sets the initial state of the users collection.
+     * Initializes the component with an empty search query and user collection.
+     * This is called when the component is mounted.
      */
     public function mount(): void
     {
@@ -55,7 +54,7 @@ new class extends Component
     }
 } ?>
 
-{{-- Blade-Teil der Komponente --}}
+
 <div class="relative" x-data="{ open: false }" @click.away="open = false" wire:ignore.self>
     {{-- Suchfeld --}}
     <input
@@ -68,7 +67,6 @@ new class extends Component
     />
 
     {{-- Container für Dropdown-Inhalt --}}
-    {{-- ÄNDERUNG HIER: Füge $wire.searchQuery.length >= 3 zur x-show Bedingung hinzu --}}
     <div
         x-show="open && $wire.searchQuery.length >= 3"
         x-transition:enter="transition ease-out duration-100"
@@ -81,9 +79,8 @@ new class extends Component
         style="display: none;" {{-- Verhindert Flackern beim Laden --}}
     >
         {{-- Ergebnisliste (nur anzeigen, wenn Ergebnisse vorhanden) --}}
-        {{-- Die Bedingung $wire.searchQuery.length >= 3 ist hier implizit durch die äußere div abgedeckt --}}
-        <ul x-show="$wire.users.length > 0" class="divide-y divide-gray-100 dark:divide-gray-700">
-            @forelse($users as $user)
+        <ul x-show="$wire.users && $wire.users.length > 0" class="divide-y divide-gray-100 dark:divide-gray-700">
+            @foreach($users as $user)
                 <li>
                     <a href="{{ route('profile', ['username' => $user['username']]) }}"
                        wire:click="clearSearch"
@@ -95,16 +92,11 @@ new class extends Component
                         <span class="text-sm text-gray-700 dark:text-gray-200 truncate">{{ $user['name'] ?? $user['username'] }}</span>
                     </a>
                 </li>
-            @empty
-                {{-- Wird nicht angezeigt, wenn x-show oben greift --}}
-            @endforelse
+            @endforeach
         </ul>
 
          {{-- "Keine Ergebnisse"-Nachricht --}}
-         {{-- Die Bedingung $wire.searchQuery.length >= 3 ist hier implizit durch die äußere div abgedeckt --}}
-         {{-- Die PHP-Logik stellt sicher, dass $users leer ist, wenn die Query < 3 ist. --}}
-         {{-- Wir müssen hier also nur prüfen, ob $users leer ist, WÄHREND das Dropdown (wegen Query >=3) offen ist. --}}
-         <div x-show="$wire.users.length === 0" class="p-4">
+         <div x-show="$wire.users && $wire.users.length === 0" class="p-4">
             <p class="text-sm text-gray-500 dark:text-gray-400">Keine Benutzer gefunden.</p>
          </div>
     </div>
