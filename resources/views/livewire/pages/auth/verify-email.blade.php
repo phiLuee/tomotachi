@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
+new 
+#[Layout('layouts.guest')] 
+class extends Component
 {
     /**
      * Send an email verification notification to the user.
@@ -33,7 +35,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         $this->redirect('/', navigate: true);
     }
-}; ?>
+} ?>
 
 <div>
     <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
