@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Components;
 
 use App\Models\Post;
+use App\Data\PostData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\LengthAwarePaginator as ConcreteLengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -85,7 +86,13 @@ new class extends Component
             $query->whereIn('user_id', $followedUserIds);
         }
 
-        return $query->paginate(10);
+        $paginator = $query->paginate(10);
+
+        $paginator->setCollection(
+            collect($paginator->items())->map(fn($post) => PostData::from($post))
+        );
+
+        return $paginator;
     }
 
     /**
@@ -154,7 +161,7 @@ new class extends Component
         $post->delete();
 
         // Remove post from the accumulated list instead of reloading everything
-        $this->accumulatedPosts = $this->accumulatedPosts->reject(fn(Post $p) => $p->id === $postId);
+        $this->accumulatedPosts = $this->accumulatedPosts->reject(fn(PostData $p) => $p->id === $postId);
 
         // Optional: If you always want to reload the list after deletion (like before):
         // $this->refreshPosts();

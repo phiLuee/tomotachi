@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Livewire\Components;
 
 use App\Models\Post;
+use App\Data\PostData;
 use Livewire\Volt\Component;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate; 
 use Livewire\Attributes\On;
 
 new class extends Component {
-    public Post $post;
+    public PostData $post;
     public bool $isEditing = false;
 
     #[Validate('required|string|max:1000')]
@@ -32,14 +33,18 @@ new class extends Component {
         // Schaltet den Like-Status um
         $user->likedPosts()->toggle($this->post->id);
 
-        // Aktualisiere die Anzahl der Likes und den Status
-        $this->post->loadCount('likers'); 
-        $this->post->setAttribute(
-            'is_liked_by_current_user',
-            $this->post->likers()->where('user_id', Auth::id())
-            ->exists()
-    );
-
+        // Aktualisiere die Eigenschaften des PostData-Objekts direkt
+        if ($this->post->is_liked_by_current_user) {
+            // Post war geliked, wird jetzt entliked
+            $this->post->is_liked_by_current_user = false;
+            if ($this->post->likers_count > 0) { // Sicherstellen, dass der Zähler nicht negativ wird
+                $this->post->likers_count--;
+            }
+        } else {
+            // Post war nicht geliked, wird jetzt geliked
+            $this->post->is_liked_by_current_user = true;
+            $this->post->likers_count++;
+        }
     }
 
     /**
@@ -47,7 +52,7 @@ new class extends Component {
      */
     public function startEditing(): void
     {
-        if (Auth::id() !== $this->post->user_id || !$this->post->created_at->gt(now()->subMinutes(15))) {
+        if (Auth::id() !== $this->post->user->id || !$this->post->created_at->gt(now()->subMinutes(15))) {
             $this->dispatch('notify', 'Bearbeitung nicht erlaubt.', 'error');
             return;
         }
@@ -69,16 +74,28 @@ new class extends Component {
      */
     public function saveEdit(): void
     {
-        if (Auth::id() !== $this->post->user_id) {
+        if (Auth::id() !== $this->post->user->id) {
              $this->dispatch('notify', 'Nicht autorisiert.', 'error');
-             $this->cancelEditing(); // Bearbeitung abbrechen
+             $this->cancelEditing(); 
             return;
         }
 
         $validated = $this->validate();
-        $this->post->update([
+
+        $eloquentPost = Post::find($this->post->id);
+
+        if (!$eloquentPost) {
+            $this->dispatch('notify', 'Post nicht gefunden.', 'error');
+            $this->cancelEditing();
+            return;
+        }
+
+        $eloquentPost->update([
             'content' => $validated['editedContent'],
         ]);
+
+        $this->post->content = $eloquentPost->content;
+        $this->post->updated_at = $eloquentPost->updated_at;
 
 
         $this->isEditing = false;
@@ -104,7 +121,7 @@ new class extends Component {
                {{ $this->post->user->name ?? $this->post->user->username }} {{-- Zeige Namen, fallback auf Username --}}
             </a>
             <div class="text-sm text-gray-500 dark:text-gray-400">
-                {{ $this->post->created_at->diffForHumans() }}
+                {{ $this->post->created_at->diffForHumans() }} {{-- Zeitstempel --}}
             </div>
         </div>
     </div>
@@ -156,7 +173,8 @@ new class extends Component {
     {{-- Aktionsbuttons (Bearbeiten/Löschen) - Nur anzeigen, wenn NICHT bearbeitet wird --}}
     @if (!$isEditing)
         @auth
-            @if (Auth::id() === $this->post->user_id)
+            @if (Auth::id() === $this->post->user->id)
+                {{-- Zeige die Aktionsbuttons nur, wenn der eingeloggte Benutzer der Autor des Posts ist --}}
                 <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center space-x-3">
                     @if ($this->post->created_at->gt(now()->subMinutes(15)))
                         <button
