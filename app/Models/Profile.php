@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Models;
@@ -11,9 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Profile extends Model
 {
     use HasFactory;
-
-    // Falls du explizit machen willst, wie die Tabelle heißt:
-    // protected $table = 'profiles';
 
     /**
      * Mass-assignable Attribute

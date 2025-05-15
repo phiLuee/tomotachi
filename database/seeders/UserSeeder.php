@@ -17,14 +17,20 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Admin',
             'username' => 'admin',
             'email' => 'admin@example.com',
             'password' => Hash::make('admin@example.com'),
         ]);
 
-        $user->assignRole('admin');
+        $admin->assignRole('admin');
+        $admin->profile->update([
+            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($admin->username) . '&size=128&background=random',
+            'bio' => 'Ich bin der Admin.',
+            'location' => 'Berlin',
+            'website' => 'https://admin.example.com',
+        ]);
 
         $user = User::factory()->create([
             'name' => 'User',
@@ -34,14 +40,26 @@ class UserSeeder extends Seeder
         ]);
 
         $user->assignRole('user');
+        $user->profile->update([
+            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($user->username) . '&size=128&background=random',
+            'bio' => 'Ich bin ein Testuser.',
+            'location' => 'Hamburg',
+            'website' => 'https://user.example.com',
+        ]);
 
         User::factory()
             ->count($this->userCount)
             ->create()
             ->each(function ($user) {
                 $user->assignRole('user');
-            });;
+                $user->profile->update([
+                    'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($user->username) . '&size=128&background=random',
+                    'bio' => fake()->sentence(),
+                    'location' => fake()->city(),
+                    'website' => fake()->url(),
+                ]);
+            });
 
-        $this->command->info('UserSeeder executed: Created test users and ' . $this->userCount. ' random users.');
+        $this->command->info('UserSeeder executed: Created test users and ' . $this->userCount . ' random users.');
     }
 }

@@ -63,6 +63,26 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * The attributes that should be appended to the model's array form.
+     *
+     * @var list<string>
+     */
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $user->profile()->create();
+        });
+    }
+
+    /**
+     * Beziehung: Ein User hat genau ein Profile (1:1)
+     */
+    public function profile()
+    {
+        return $this->hasOne(\App\Models\Profile::class);
+    }
+
+    /**
      * Ein User hat viele Posts
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

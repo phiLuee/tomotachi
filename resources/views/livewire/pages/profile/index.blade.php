@@ -48,7 +48,7 @@ class extends Component
         </div>
     {{-- Nutzerbild, unten links, rund, leicht überlappend --}}
     <div class="absolute -bottom-12 left-8">
-        <img src="{{ $user->profile_image ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->username) }}"
+        <img src="{{ $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->username) }}"
              alt="Profilbild"
              class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover bg-gray-200" />
     </div>

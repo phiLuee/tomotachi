@@ -111,7 +111,7 @@ new class extends Component {
     <div class="flex items-center space-x-3 mb-4"> {{-- space-x-3 für Abstand --}}
         {{-- Profilbild --}}
         <a href="{{ route('profile', ['username' => $this->post->user->username]) }}">
-            <img src="{{ $this->post->user->profile_image ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->post->user->username) . '&background=random' }}"
+            <img src="{{ $this->post->user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->post->user->username) . '&background=random' }}"
                  alt="{{ $this->post->user->username }}"
                  class="w-10 h-10 rounded-full object-cover bg-gray-200 dark:bg-gray-700 shadow"> {{-- Größe, Rundung, Schatten --}}
         </a>
