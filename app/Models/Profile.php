@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Profile extends Model
@@ -38,8 +37,18 @@ class Profile extends Model
      * falls du mit Storage-Disks arbeitest.
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
-    public function getAvatarUrlAttribute(): MorphOne
+    // public function getAvatarUrlAttribute(): MorphOne
+    // {
+    //     return $this->morphOne(Media::class, 'mediable')->where('role', 'avatar');
+    // }
+
+    /**
+     * Accessor: Gebe einen "vollständigen" Avatar-Pfad zurück
+     * @return string
+     */
+    public function getAvatarAttribute(): string
     {
-        return $this->morphOne(Media::class, 'mediable')->where('role', 'avatar');
+        return $this->avatar
+            ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->user->username ?? '') . '&background=random';
     }
 }
