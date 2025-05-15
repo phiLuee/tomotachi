@@ -16,9 +16,11 @@ class ProfileData extends Data implements Wireable
     public function __construct(
         public int $id,
         public string $username,
-        public ?string $name,
-        public ?string $profile_image,
+        public string $name,
+        public ?string $avatar,
         public ?string $bio,
+        public ?string $location,
+        public ?string $website,
         public int $followers_count,
         public int $following_count,
         public int $posts_count,
