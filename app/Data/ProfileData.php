@@ -14,21 +14,25 @@ class ProfileData extends Data implements Wireable
     use WireableData;
 
     public function __construct(
-        public int $id,
+        public int $userId,
         public string $username,
         public string $name,
         public ?string $avatar,
         public ?string $bio,
         public ?string $location,
         public ?string $website,
-        public int $followers_count,
-        public int $following_count,
-        public int $posts_count,
+        public int $followersCount,
+        public int $followingCount,
+        public int $postsCount,
         public string $created_at,
         public string $updated_at,
         public ?string $last_activity,
     ) {}
 
+    /**
+     * @param User $user
+     * @return static
+     */
     public static function fromModel(User $user): self
     {
         $profile = $user->profile;

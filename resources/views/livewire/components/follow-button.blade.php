@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\Components;
 
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
@@ -16,7 +15,7 @@ new class extends Component
     /**
      * The user profile being viewed (potential target for following).
      */
-    public User $user;
+    public int $userId;
 
     /**
      * Indicates if the currently authenticated user is viewing their own profile.
@@ -28,10 +27,10 @@ new class extends Component
      *
      * @param \App\Models\User $user The user associated with this follow button.
      */
-    public function mount(User $user): void
+    public function mount(int $userId): void
     {
-        $this->user = $user;
-        $this->isSelf = Auth::id() === $this->user->id;
+        $this->userId = $userId;
+        $this->isSelf = Auth::id() === $this->userId;
     }
 
     /**
@@ -51,7 +50,7 @@ new class extends Component
 
         // Check if a following relationship exists
         // Assumes a 'following' belongsToMany relationship is defined on the User model
-        return $authUser->following()->where('users.id', $this->user->id)->exists();
+        return $authUser->following()->where('users.id', $this->userId)->exists();
     }
 
     /**
@@ -70,10 +69,10 @@ new class extends Component
         }
 
         // Attach or detach the user ID in the pivot table
-        $authUser->following()->toggle($this->user->id);
+        $authUser->following()->toggle($this->userId);
 
         // Dispatch an event that other components might listen to (e.g., update follower count)
-        $this->dispatch('follow-toggled', userId: $this->user->id);
+        $this->dispatch('follow-toggled', userId: $this->userId);
     }
 
     #[On('follow-toggled')]
